@@ -11,10 +11,10 @@ function updateEffective(r){
  const out=document.getElementById('effectiveResults'),detail=document.getElementById('effectiveDetails');
  if(!r||r.ell===0){document.getElementById('selectedResult').textContent=r?'ずれが0のため、中間管の有効長を算出しません。':'寸法を入力してください。';out.textContent=r?'ずれが0のため、中間管の有効長を算出しません。':'寸法を入力してください。';detail.textContent='';return}
  const dn=document.getElementById('pipeDiameter').value;
- const first={type:document.getElementById('firstType').value,face:document.getElementById('firstFace').value};
- const last={type:document.getElementById('lastType').value,face:document.getElementById('lastFace').value};
+ const first={type:document.getElementById('pipeType').value,face:document.getElementById('firstFace').value};
+ const last={type:document.getElementById('pipeType').value,face:document.getElementById('lastFace').value};
  const extraInput=document.getElementById('extraEffective').value;
- const extra=extraInput.trim()===''?NaN:Number(extraInput);
+ const extra=selectedExtra===null?0:extraInput.trim()===''?NaN:Number(extraInput);
  const rows=r.rows.map(v=>({...v,...pipeEffectiveLength(v.y,String(v.deg),dn,first,last,extra)}));
  const chosenAngle=Number(document.getElementById('selectedAngle').value);
  const chosen=rows.find(v=>v.deg===chosenAngle);
@@ -23,13 +23,16 @@ function updateEffective(r){
  out.innerHTML='<table><thead><tr><th>曲管 θ</th><th class="dim-y">折れ点間 y</th><th class="dim-effective">中間管 有効長 L</th></tr></thead><tbody>'+rows.map(v=>`<tr><td>${angleLabels[v.deg]}</td><td class="dim-y">${fmt(v.y)} mm</td><td class="${v.error?'error':'dim-effective'}">${v.error||fmt(v.length)+' mm'}</td></tr>`).join('')+'</tbody></table>';
  detail.innerHTML='<table><thead><tr><th>曲管 θ</th><th>① '+first.face+'</th><th>② '+last.face+'</th><th>差引合計</th></tr></thead><tbody>'+rows.map(v=>`<tr><td>${angleLabels[v.deg]}</td><td>${v.firstLength==null?'—':fmt(v.firstLength)+' mm'}</td><td>${v.lastLength==null?'—':fmt(v.lastLength)+' mm'}</td><td>${v.firstLength==null||v.lastLength==null||!Number.isFinite(extra)?'—':fmt(v.firstLength+v.lastLength+extra)+' mm'}</td></tr>`).join('')+'</tbody></table>';
 }
-for(const prefix of ['first','last'])document.getElementById(prefix+'Type').addEventListener('change',()=>{
- const face=document.getElementById(prefix+'Face'),double=document.getElementById(prefix+'Type').value==='GX_DOUBLE';
- face.querySelector('option[value="L2"]').disabled=double;
- if(double)face.value='L1';update();
-});
-for(const id of ['pipeDiameter','firstFace','lastFace','selectedAngle'])document.getElementById(id).addEventListener('change',update);
+for(const id of ['pipeDiameter','pipeType','firstFace','lastFace','selectedAngle'])document.getElementById(id).addEventListener('change',update);
+let selectedExtra=null;
 const extraLengths={sleeve:'0',tee:'0'};
-document.getElementById('extraType').addEventListener('change',()=>{document.getElementById('extraEffective').value=extraLengths[document.getElementById('extraType').value];update()});
-document.getElementById('extraEffective').addEventListener('input',()=>{extraLengths[document.getElementById('extraType').value]=document.getElementById('extraEffective').value;update()});
+document.querySelectorAll('[data-extra]').forEach(button=>button.addEventListener('click',()=>{
+ const type=button.dataset.extra;
+ selectedExtra=selectedExtra===type?null:type;
+ document.querySelectorAll('[data-extra]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.extra===selectedExtra)));
+ document.getElementById('extraLengthField').hidden=selectedExtra===null;
+ if(selectedExtra!==null)document.getElementById('extraEffective').value=extraLengths[selectedExtra];
+ update();
+}));
+document.getElementById('extraEffective').addEventListener('input',()=>{if(selectedExtra!==null)extraLengths[selectedExtra]=document.getElementById('extraEffective').value;update()});
 document.querySelectorAll('nav button').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode;document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',String(b===btn)));render()}));render();
