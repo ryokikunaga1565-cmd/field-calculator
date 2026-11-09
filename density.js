@@ -24,7 +24,8 @@ function updateDensity(){
  document.getElementById('materialSummary').textContent=`最大乾燥密度：${valid(material.maximum)&&+material.maximum>0?numberFormat(+material.maximum,3)+' g/cm³':'未設定'} ／ 最適含水比（参考）：${valid(material.optimum)?numberFormat(+material.optimum,2)+' %':'未設定'}`;
  const result=densityCalculate({...densityValues,sandDensity:settings.sandDensity,funnelMass:settings.funnelMass,maximum:material.maximum}),el=document.getElementById('densityResults');
  if(result.error){el.innerHTML='<p class="muted" id="densityError"></p>';document.getElementById('densityError').textContent=result.error;return}
- el.innerHTML=`<span class="badge">予測含水比による暫定結果</span><p class="compaction-label">${name} ／ 締固め度</p><div class="big">${numberFormat(result.compaction,1)} <small>%</small></div>`;
+ const judgment=densityJudgment(name,result.compaction);
+ el.innerHTML=`<span class="badge">予測含水比による暫定結果</span><p class="compaction-label">${name} ／ 締固め度</p><div class="big ${judgment.passed?'result-pass':'result-fail'}">${numberFormat(result.compaction,1)} <small>%</small></div><p class="judgment ${judgment.passed?'result-pass':'result-fail'}">${judgment.passed?'合格判定値クリア':'合格判定値を満たしていません'}</p>`;
 }
 function formatMoisture(el){if(el.value!==''&&Number.isFinite(+el.value)&&+el.value>=0)el.value=(Math.round((+el.value+Number.EPSILON)*100)/100).toFixed(2)}
 for(const id of Object.keys(densityValues)){
