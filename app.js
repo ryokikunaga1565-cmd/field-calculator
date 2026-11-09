@@ -1,3 +1,5 @@
+const pipeSettingIds=['pipeDiameter','pipeType','firstFace','lastFace','selectedAngle'];
+const pipeSettingsComplete=()=>pipeSettingIds.every(id=>document.getElementById(id).value!=='');
 const angles=[45,22.5,11.25,5.625];
 const angleLabels={45:'45°',22.5:'22°1/2',11.25:'11°1/4',5.625:'5°5/8'};
 const fieldColor=id=>['newDepth','oldDepth'].includes(id)?'a':id==='ell'?'ell':'b';
@@ -9,6 +11,7 @@ const fmt=n=>Math.round(n).toLocaleString('ja-JP');
 function update(){const invalid=specs[mode].some(([id])=>values[id].trim()===''||!Number.isFinite(Number(values[id]))||Number(values[id])<0);const out=document.getElementById('results'),off=document.getElementById('offsetResult');if(invalid){off.innerHTML='<span class="error">0以上の寸法をすべて入力してください。</span>';out.textContent='入力待ち';updateEffective(null);return}const a=Math.abs(+values.oldDepth- +values.newDepth),b=mode==='position'?Math.abs(+values.oldPos- +values.newPos):+values.gap;const r=calculate(a,b,mode==='direct'?+values.ell:undefined);off.innerHTML=`<span class="dim-ell">斜辺のずれ ℓ</span><br><b class="dim-ell">${fmt(r.ell)}</b> <span>mm</span>`+(mode==='direct'?'':`<br><span class="dim-a">高低差 a = ${fmt(a)}</span><br><span class="dim-b">離れ b = ${fmt(b)}</span>`);if(r.ell===0){off.innerHTML+='<br><span>ずれが0のため、ひねり配管は不要です。</span>'}updateEffective(r)}
 function updateEffective(r){
  const out=document.getElementById('results');
+ if(!pipeSettingsComplete()){document.getElementById('selectedResult').textContent='管・角度をすべて選択してください。';out.textContent='管・角度をすべて選択してください。';document.getElementById('extraLengthSummary').textContent='';return}
  if(!r||r.ell===0){document.getElementById('selectedResult').textContent=r?'ずれが0のため、中間管の有効長を算出しません。':'寸法を入力してください。';out.textContent=r?'ずれが0のため、中間管の有効長を算出しません。':'寸法を入力してください。';return}
  const dn=document.getElementById('pipeDiameter').value;
  const first={type:document.getElementById('pipeType').value,face:document.getElementById('firstFace').value};
@@ -22,7 +25,7 @@ function updateEffective(r){
 
  out.innerHTML='<table><thead><tr><th>曲管 θ</th><th class="dim-y">折れ点間 y<br>(mm)</th><th class="dim-x">進行方向 x<br>(mm)</th><th class="dim-effective">中間管 L<br>(mm)</th></tr></thead><tbody>'+rows.map(v=>`<tr><td>${angleLabels[v.deg]}</td><td class="dim-y">${fmt(v.y)}</td><td class="dim-x">${fmt(v.x)}</td><td class="${v.error?'error':'dim-effective'}">${v.error||fmt(v.length)}</td></tr>`).join('')+'</tbody></table>';
 }
-for(const id of ['pipeDiameter','pipeType','firstFace','lastFace','selectedAngle'])document.getElementById(id).addEventListener('change',update);
+for(const id of pipeSettingIds)document.getElementById(id).addEventListener('change',()=>{update();if(pipeSettingsComplete())document.getElementById('pipeSettings').open=false;});
 let selectedExtra=null;
 
 document.querySelectorAll('[data-extra]').forEach(button=>button.addEventListener('click',()=>{
