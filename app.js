@@ -13,8 +13,8 @@ function updateEffective(r){
  const dn=document.getElementById('pipeDiameter').value;
  const first={type:document.getElementById('pipeType').value,face:document.getElementById('firstFace').value};
  const last={type:document.getElementById('pipeType').value,face:document.getElementById('lastFace').value};
- const extraInput=document.getElementById('extraEffective').value;
- const extra=selectedExtra===null?0:extraInput.trim()===''?NaN:Number(extraInput);
+ const extra=pipeExtraLength(selectedExtra,dn);
+ document.getElementById('extraLengthSummary').textContent=selectedExtra===null?'':`差引寸法：${extra} mm`;
  const rows=r.rows.map(v=>({...v,...pipeEffectiveLength(v.y,String(v.deg),dn,first,last,extra)}));
  const chosenAngle=Number(document.getElementById('selectedAngle').value);
  const chosen=rows.find(v=>v.deg===chosenAngle);
@@ -24,14 +24,11 @@ function updateEffective(r){
 }
 for(const id of ['pipeDiameter','pipeType','firstFace','lastFace','selectedAngle'])document.getElementById(id).addEventListener('change',update);
 let selectedExtra=null;
-const extraLengths={sleeve:'0',tee:'0'};
+
 document.querySelectorAll('[data-extra]').forEach(button=>button.addEventListener('click',()=>{
  const type=button.dataset.extra;
  selectedExtra=selectedExtra===type?null:type;
  document.querySelectorAll('[data-extra]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.extra===selectedExtra)));
- document.getElementById('extraLengthField').hidden=selectedExtra===null;
- if(selectedExtra!==null)document.getElementById('extraEffective').value=extraLengths[selectedExtra];
  update();
 }));
-document.getElementById('extraEffective').addEventListener('input',()=>{if(selectedExtra!==null)extraLengths[selectedExtra]=document.getElementById('extraEffective').value;update()});
 document.querySelectorAll('nav button').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode;document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',String(b===btn)));render()}));render();

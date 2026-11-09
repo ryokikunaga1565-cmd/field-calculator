@@ -11,3 +11,8 @@ function pipeEffectiveLength(y,angle,dn,first,last,extra=0){
  return {firstLength,lastLength,extra,length,error:length<0?'曲管・部材が収まらない':null};
 }
 if(typeof module!=='undefined')module.exports={PIPE_DIMENSIONS,pipeEffectiveLength};
+
+// GX継輪：JDPA T27（2023年12月）表9、標準胴付寸法y1。K継輪・GP用T字管は指定の固定差引寸法。
+const GX_SLEEVE_ALLOWANCE={75:190,100:200,150:240,200:250,250:250,300:300,350:300,400:300,450:300};
+function pipeExtraLength(type,dn){return type===null?0:type==='sleeve'?60:type==='tee'?50:type==='gxSleeve'?(GX_SLEEVE_ALLOWANCE[dn]??NaN):NaN}
+if(typeof module!=='undefined')Object.assign(module.exports,{pipeExtraLength,GX_SLEEVE_ALLOWANCE});
