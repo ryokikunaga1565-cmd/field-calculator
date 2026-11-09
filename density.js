@@ -24,7 +24,7 @@ function updateDensity(){
  document.getElementById('materialSummary').textContent=`最大乾燥密度：${valid(material.maximum)&&+material.maximum>0?numberFormat(+material.maximum,3)+' g/cm³':'未設定'} ／ 最適含水比（参考）：${valid(material.optimum)?numberFormat(+material.optimum,2)+' %':'未設定'}`;
  const result=densityCalculate({...densityValues,sandDensity:settings.sandDensity,funnelMass:settings.funnelMass,maximum:material.maximum}),el=document.getElementById('densityResults');
  if(result.error){el.innerHTML='<p class="muted" id="densityError"></p>';document.getElementById('densityError').textContent=result.error;return}
- el.innerHTML=`<span class="badge">予測含水比による暫定結果</span><p class="muted">${name} ／ 締固め度</p><div class="big">${numberFormat(result.compaction,1)} <small>%</small></div><dl class="facts"><dt>乾燥密度</dt><dd>${numberFormat(result.dryDensity,3)} g/cm³</dd><dt>推定乾燥重量</dt><dd>${numberFormat(result.dry)} g</dd><dt>置換した砂重量</dt><dd>${numberFormat(result.sandMass,1)} g</dd><dt>穴の容積</dt><dd>${numberFormat(result.volume)} cm³</dd><dt>湿潤密度</dt><dd>${numberFormat(result.wetDensity,3)} g/cm³</dd><dt>予測含水比</dt><dd>${numberFormat(result.moisture,2)} %</dd></dl>`;
+ el.innerHTML=`<span class="badge">予測含水比による暫定結果</span><p class="compaction-label">${name} ／ 締固め度</p><div class="big">${numberFormat(result.compaction,1)} <small>%</small></div>`;
 }
 function formatMoisture(el){if(el.value!==''&&Number.isFinite(+el.value)&&+el.value>=0)el.value=(Math.round((+el.value+Number.EPSILON)*100)/100).toFixed(2)}
 for(const id of Object.keys(densityValues)){
