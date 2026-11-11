@@ -1,12 +1,12 @@
 const materialNames=['RC-10','RC-40','RM-40'];
 const densityValues={before:'',after:'',wet:'',moisture:''};
-let densitySettings={sandDensity:'',funnelMass:'',materials:Object.fromEntries(materialNames.map(name=>[name,{maximum:'',optimum:''}]))};
+let densitySettings={sandDensity:'1.29',funnelMass:'1428',materials:{'RC-10':{maximum:'1.713',optimum:'12.00'},'RC-40':{maximum:'1.741',optimum:'10.30'},'RM-40':{maximum:'1.804',optimum:'10.80'}}};
 const scalar=v=>(typeof v==='string'||typeof v==='number')?String(v):'';
 try{
  const saved=JSON.parse(localStorage.getItem('field-density-settings-v2')||localStorage.getItem('field-density-settings-v1'));
  if(saved&&typeof saved==='object'){
-  for(const k of ['sandDensity','funnelMass'])densitySettings[k]=scalar(saved[k]);
-  for(const name of materialNames)for(const k of ['maximum','optimum'])densitySettings.materials[name][k]=scalar(saved.materials?.[name]?.[k]);
+  for(const k of ['sandDensity','funnelMass'])if(typeof saved[k]==='string'||typeof saved[k]==='number')densitySettings[k]=scalar(saved[k]);
+  for(const name of materialNames)for(const k of ['maximum','optimum'])if(typeof saved.materials?.[name]?.[k]==='string'||typeof saved.materials?.[name]?.[k]==='number')densitySettings.materials[name][k]=scalar(saved.materials[name][k]);
  }
 }catch{}
 const numberFormat=(v,d=0)=>v.toLocaleString('ja-JP',{minimumFractionDigits:d,maximumFractionDigits:d});
