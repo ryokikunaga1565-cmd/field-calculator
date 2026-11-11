@@ -11,7 +11,3 @@ function pipeEffectiveLength(y,angle,dn,first,last,extra=0){
  return {firstLength,lastLength,extra,length,error:length<0?'曲管・部材が収まらない':null};
 }
 if(typeof module!=='undefined')module.exports={PIPE_DIMENSIONS,pipeEffectiveLength};
-
-// K形継輪・GP用T字管：指定の固定差引寸法（mm）。
-function pipeExtraLength(type,dn){return type===null?0:type==='sleeve'?60:type==='tee'?50:NaN}
-if(typeof module!=='undefined')module.exports.pipeExtraLength=pipeExtraLength;

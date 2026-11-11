@@ -18,14 +18,13 @@ document.getElementById('densityFields').innerHTML='<div class="fields">'+[['bef
 document.getElementById('modeHint').textContent='予測含水比による暫定結果です。最適含水比は参考値で、計算には使用しません。';
 function readSettings(){return {sandDensity:document.getElementById('sandDensity').value,funnelMass:document.getElementById('funnelMass').value,materials:Object.fromEntries(materialNames.map((name,i)=>[name,{maximum:document.getElementById('maximum'+i).value,optimum:document.getElementById('optimum'+i).value}]))}}
 function updateDensity(){
- const settings=readSettings(),name=document.querySelector('input[name=material]:checked').value,material=settings.materials[name];
+ const settings=readSettings(),name=document.getElementById('material').value,material=settings.materials[name];
  document.getElementById('settingsSummary').textContent=settings.sandDensity!==''&&settings.funnelMass!==''?`使用する検定値：砂 ${settings.sandDensity} g/cm³ ／ ロト ${settings.funnelMass} g`:'事前設定で砂とロトの検定値を入力してください。';
  const valid=v=>v!==''&&Number.isFinite(+v)&&+v>=0;
  document.getElementById('materialSummary').textContent=`最大乾燥密度：${valid(material.maximum)&&+material.maximum>0?numberFormat(+material.maximum,3)+' g/cm³':'未設定'} ／ 最適含水比（参考）：${valid(material.optimum)?numberFormat(+material.optimum,2)+' %':'未設定'}`;
  const result=densityCalculate({...densityValues,sandDensity:settings.sandDensity,funnelMass:settings.funnelMass,maximum:material.maximum}),el=document.getElementById('densityResults');
  if(result.error){el.innerHTML='<p class="muted" id="densityError"></p>';document.getElementById('densityError').textContent=result.error;return}
- const judgment=densityJudgment(name,result.compaction);
- el.innerHTML=`<span class="badge">予測含水比による暫定結果</span><p class="compaction-label">${name} ／ 締固め度</p><div class="big ${judgment.passed?'result-pass':'result-fail'}">${numberFormat(result.compaction,1)} <small>%</small></div><p class="judgment ${judgment.passed?'result-pass':'result-fail'}">${judgment.passed?'合格判定値クリア':'合格判定値を満たしていません'}</p>`;
+ el.innerHTML=`<span class="badge">予測含水比による暫定結果</span><p class="compaction-label">${name} ／ 締固め度</p><div class="big">${numberFormat(result.compaction,1)} <small>%</small></div>`;
 }
 function formatMoisture(el){if(el.value!==''&&Number.isFinite(+el.value)&&+el.value>=0)el.value=(Math.round((+el.value+Number.EPSILON)*100)/100).toFixed(2)}
 for(const id of Object.keys(densityValues)){
@@ -37,7 +36,7 @@ document.querySelectorAll('#settings input').forEach(el=>{
  el.addEventListener('input',()=>{document.getElementById('settingsStatus').textContent='設定を変更中です。';updateDensity()});
  if(el.id.startsWith('optimum'))el.addEventListener('change',()=>{formatMoisture(el);updateDensity()});
 });
-document.querySelectorAll('input[name=material]').forEach(el=>el.addEventListener('change',updateDensity));
+document.getElementById('material').addEventListener('change',updateDensity);
 document.getElementById('saveSettings').addEventListener('click',()=>{
  const v=readSettings(),status=document.getElementById('settingsStatus');
  const valid=(s,positive=false)=>s!==''&&Number.isFinite(+s)&&(positive?+s>0:+s>=0);

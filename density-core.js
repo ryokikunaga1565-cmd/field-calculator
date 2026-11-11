@@ -17,6 +17,3 @@ return {sandMass,volume,dry,wetDensity:n.wet/volume,dryDensity,compaction,moistu
 root.densityCalculate=densityCalculate;
 if(typeof module!=='undefined')module.exports={densityCalculate};
 })(typeof globalThis!=='undefined'?globalThis:this);
-
-function densityJudgment(material,compaction){const threshold=material==='RC-10'?93:96.5;return {threshold,passed:compaction>=threshold}}
-if(typeof module!=='undefined')module.exports.densityJudgment=densityJudgment;
